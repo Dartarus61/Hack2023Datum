@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { FilesService } from 'src/files/files.service';
 import { quest } from 'src/models/quest.model';

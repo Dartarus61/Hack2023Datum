@@ -6,7 +6,6 @@ import { geoPoint } from 'src/models/geoPoint.model';
 import { quest } from 'src/models/quest.model';
 import { quiz } from 'src/models/quiz.model';
 import { region } from 'src/models/region.model';
-import { QuizeService } from 'src/quize/quiz.service';
 import { CreateQuestDto } from './dto/createQuest.dto';
 import { EditQuestDto } from './dto/editQuest.dto';
 
@@ -17,12 +16,17 @@ export class QuestService {
     @InjectModel(quiz) private quizRepository: typeof quiz,
     @InjectModel(region) private regionRepository: typeof region,
     private fileService: FilesService,
-    private quizService: QuizeService,
     private geoPointService: GeoPointService,
   ) {}
 
   async createQuest(dto: CreateQuestDto, file?: Express.Multer.File) {
-    const quiz = await this.quizService.getQuizByID(dto.quizId);
+    const quiz = await this.quizRepository.findByPk(dto.quizId, {
+      include: { all: true },
+    });
+
+    if (!quiz) {
+      throw new HttpException('Quiz not found', HttpStatus.BAD_REQUEST);
+    }
 
     const result = await this.getCountOfQuests(dto.quizId);
 
@@ -103,7 +107,13 @@ export class QuestService {
   }
 
   async editQuest(dto: EditQuestDto, file?: Express.Multer.File) {
-    const quiz = await this.quizService.getQuizByID(dto.quizId);
+    const quiz = await this.quizRepository.findByPk(dto.quizId, {
+      include: { all: true },
+    });
+
+    if (!quiz) {
+      throw new HttpException('Quiz not found', HttpStatus.BAD_REQUEST);
+    }
 
     const result = await this.getCountOfQuests(dto.questId);
 

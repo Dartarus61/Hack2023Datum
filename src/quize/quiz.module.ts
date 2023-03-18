@@ -7,6 +7,7 @@ import { quiz } from 'src/models/quiz.model';
 import { FilesModule } from 'src/files/files.module';
 import { region } from 'src/models/region.model';
 import { QuestModule } from 'src/quest/quest.module';
+import { forwardRef } from '@nestjs/common/utils';
 
 @Module({
   providers: [QuizeService],
