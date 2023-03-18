@@ -28,7 +28,6 @@ export class QuizeService {
     }
 
     const quiz = await this.quizRepository.create({
-      maxBall: dto.maxBall,
       title: dto.title,
       description: dto.description,
       photoPath,

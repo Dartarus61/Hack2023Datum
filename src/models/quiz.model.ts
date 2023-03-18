@@ -27,7 +27,7 @@ export class quiz extends Model<quiz> {
   @Column({ type: DataType.STRING, allowNull: false })
   description: string;
 
-  @Column({ type: DataType.INTEGER, allowNull: false })
+  @Column({ type: DataType.INTEGER, allowNull: true })
   maxBall: number; //! макс балл за квиз
 
   @Column({ type: DataType.STRING, allowNull: true })
