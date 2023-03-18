@@ -6,6 +6,7 @@ import { Op } from 'sequelize';
 import { FilesService } from 'src/files/files.service';
 import { geoPoint } from 'src/models/geoPoint.model';
 import { region } from 'src/models/region.model';
+import { regionToGeoPoint } from 'src/models/regionToGeoPoint.model';
 import { changeGeoPointDto } from './dto/changeGP.dto';
 import { CreateGeoPointDto } from './dto/createGP.dto';
 
@@ -15,6 +16,8 @@ export class GeoPointService {
     @InjectModel(geoPoint)
     private GPRepository: typeof geoPoint,
     @InjectModel(region) private regionRepository: typeof region,
+    @InjectModel(regionToGeoPoint)
+    private regionToGeoPointRepository: typeof regionToGeoPoint,
     private fileService: FilesService,
   ) {}
 
@@ -36,26 +39,27 @@ export class GeoPointService {
       const data = await this.GPRepository.create({
         lat: dto.lat,
         lng: dto.lng,
-        regions: regions,
+
         photoPath,
       });
+      await data.$add('regions', regions);
       return data;
     } else {
       const data = await this.GPRepository.create({
         lat: dto.lat,
         lng: dto.lng,
-        regions: regions,
       });
+      await data.$add('regions', regions);
       return data;
     }
   }
 
   async findAll() {
-    return this.GPRepository.findAll();
+    return this.GPRepository.findAll({ include: [region] });
   }
 
   async findOneById(id: number) {
-    const point = await this.GPRepository.findByPk(id);
+    const point = await this.GPRepository.findByPk(id, { include: [region] });
 
     if (!point) {
       throw new HttpException('GeoPoint not found', HttpStatus.BAD_REQUEST);
@@ -97,6 +101,7 @@ export class GeoPointService {
       where: {
         title,
       },
+      include: [region],
     });
 
     if (!point) {
@@ -113,21 +118,39 @@ export class GeoPointService {
       throw new HttpException('GeoPoint not found', HttpStatus.BAD_REQUEST);
     }
 
-    const regions = await this.regionRepository.findAll({
-      where: {
-        id: {
-          [Op.in]: dto.region,
+    if (dto.region) {
+      const regions = await this.regionRepository.findAll({
+        where: {
+          id: {
+            [Op.in]: dto.region,
+          },
         },
-      },
-    });
+      });
 
-    if (regions.length != dto.region.length) {
-      throw new HttpException('some regions not found', HttpStatus.BAD_REQUEST);
+      if (regions.length != dto.region.length) {
+        throw new HttpException(
+          'some regions not found',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      await this.regionToGeoPointRepository.destroy({
+        where: { geoPointId: dto.id },
+      });
+
+      await point.$add('regions', dto.region);
     }
 
-    await point.update({ ...dto, regions });
+    const data = await geoPoint.update(
+      { ...dto },
+      {
+        where: {
+          id: dto.id,
+        },
+      },
+    );
 
-    return this.GPRepository.findByPk(dto.id);
+    return this.GPRepository.findByPk(dto.id, { include: [region] });
   }
 
   async deletePoint(id: number) {

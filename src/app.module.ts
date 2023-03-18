@@ -7,6 +7,7 @@ import { region } from './models/region.model';
 import { quiz } from './models/quiz.model';
 import { regionToGeoPoint } from './models/regionToGeoPoint.model';
 import { quest } from './models/quest.model';
+import { QuestModule } from './quest/quest.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { quest } from './models/quest.model';
     }),
     QuizeModule,
     GeoPointModule,
+    QuestModule,
   ],
   controllers: [],
   providers: [],

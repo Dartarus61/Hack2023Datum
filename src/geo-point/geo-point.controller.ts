@@ -4,10 +4,12 @@ import {
   Post,
   UploadedFile,
   UseInterceptors,
-  Get
+  Get,
+  Delete,
 } from '@nestjs/common';
 import { Param } from '@nestjs/common/decorators/http/route-params.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { changeGeoPointDto } from './dto/changeGP.dto';
 import { CreateGeoPointDto } from './dto/createGP.dto';
 import { GeoPointService } from './geo-point.service';
 
@@ -25,15 +27,33 @@ export class GeoPointController {
   }
 
   @Get('/all')
-  getAll() {
-    return this.gPService.findAll()
+  getPointAll() {
+    return this.gPService.findAll();
   }
 
   @Get('/:id')
-  getById(@Param('id') id: string) {
-    return this.gPService.findOneById(id)
+  getPointById(@Param('id') id: number) {
+    return this.gPService.findOneById(id);
   }
 
-  @Get()
-  
+  //TODO: переделать тип запроса
+  @Post('/reg')
+  getPointByRegionsName(@Body('regions') regions: string[]) {
+    return this.gPService.findByRegionName(regions);
+  }
+
+  @Get('/:title')
+  getPointByTitle(@Param('title') title: string) {
+    return this.gPService.findByTitle(title);
+  }
+
+  @Post('/edit')
+  editPoint(@Body() dto: changeGeoPointDto) {
+    return this.gPService.editPoint(dto);
+  }
+
+  @Delete('/delete/:id')
+  deletePoint(@Param('id') id: number) {
+    return this.gPService.deletePoint(id);
+  }
 }
