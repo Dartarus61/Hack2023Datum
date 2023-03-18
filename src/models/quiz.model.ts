@@ -24,11 +24,17 @@ export class quiz extends Model<quiz> {
   @Column({ type: DataType.STRING, allowNull: false })
   title: string;
 
+  @Column({ type: DataType.STRING, allowNull: false })
+  description: string;
+
   @Column({ type: DataType.INTEGER, allowNull: false })
-  maxBall: number;
+  maxBall: number; //! макс балл за квиз
 
   @Column({ type: DataType.STRING, allowNull: true })
   photoPath: string;
+
+  @Column({ type: DataType.BOOLEAN, defaultValue: false })
+  finished: boolean;
 
   @ForeignKey(() => region)
   @Column

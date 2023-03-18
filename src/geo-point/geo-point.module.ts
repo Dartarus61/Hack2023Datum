@@ -11,6 +11,7 @@ import { GeoPointService } from './geo-point.service';
 @Module({
   controllers: [GeoPointController],
   providers: [GeoPointService],
+  exports: [GeoPointService],
   imports: [
     SequelizeModule.forFeature([geoPoint, region, regionToGeoPoint]),
     FilesModule,

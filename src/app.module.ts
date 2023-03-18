@@ -20,7 +20,7 @@ import { QuestModule } from './quest/quest.module';
       database: process.env.DB_NAME || 'datum',
       models: [geoPoint, region, quiz, regionToGeoPoint, quest],
       autoLoadModels: true,
-      /* sync: { force: true }, */
+      sync: { alter: true },
       /* dialectOptions:{
           ssl:{
               require: true,

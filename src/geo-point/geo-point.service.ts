@@ -22,18 +22,6 @@ export class GeoPointService {
   ) {}
 
   async createGeoPoint(dto: CreateGeoPointDto, file?: Express.Multer.File) {
-    console.log(dto);
-    console.log(file);
-    const regions = await this.regionRepository.findAll({
-      where: {
-        id: {
-          [Op.in]: dto.regions,
-        },
-      },
-    });
-    if (regions.length != dto.regions.length) {
-      throw new HttpException('some regions not found', HttpStatus.BAD_REQUEST);
-    }
     if (file) {
       const photoPath = this.fileService.savePicture(file);
       const data = await this.GPRepository.create({
@@ -42,14 +30,29 @@ export class GeoPointService {
 
         photoPath,
       });
-      await data.$add('regions', regions);
       return data;
     } else {
       const data = await this.GPRepository.create({
         lat: dto.lat,
         lng: dto.lng,
       });
-      await data.$add('regions', regions);
+      if (dto.regions) {
+        const regions = await this.regionRepository.findAll({
+          where: {
+            id: {
+              [Op.in]: dto.regions,
+            },
+          },
+        });
+        if (regions.length != dto.regions.length) {
+          throw new HttpException(
+            'some regions not found',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+        await data.$add('regions', regions);
+      }
+
       return data;
     }
   }
