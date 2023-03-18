@@ -27,7 +27,12 @@ export class QuizeService {
       photoPath = this.fileService.savePicture(file);
     }
 
-    const quiz = await this.quizRepository.create({ ...dto, photoPath });
+    const quiz = await this.quizRepository.create({
+      maxBall: dto.maxBall,
+      title: dto.title,
+      description: dto.description,
+      photoPath,
+    });
     await quiz.$set('region', region);
     return quiz;
   }
