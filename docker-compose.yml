@@ -1,14 +1,26 @@
-version: '3.3'
+version: '3.9'
 services:
-  mongo:
-    ports:
-      - '27017:27017'
-    container_name: datum-mongo
-    restart: always
-    logging:
-      options:
-        max-size: 1g
+  postgres:
+    image: postgres:13.3
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=user
-      - MONGO_INITDB_ROOT_PASSWORD=pass
-    image: mongo
+      POSTGRES_DB: 'datum'
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
+      PGDATA: '/var/lib/postgresql/data/datum'
+    volumes:
+      - ../2. Init Database:/docker-entrypoint-initdb.d
+      - .:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d datum']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 4G
