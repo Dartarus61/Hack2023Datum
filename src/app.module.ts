@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { QuizeModule } from './quize/quize.module';
+import { QuizeModule } from './quize/quiz.module';
 import { GeoPointModule } from './geo-point/geo-point.module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { geoPoint } from './models/geoPoint.model';

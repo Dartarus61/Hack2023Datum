@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateQuizDto } from './dto/createQuiz.dto';
-import { QuizeService } from './quize.service';
+import { QuizeService } from './quiz.service';
 
 @Controller('quiz')
 export class QuizeController {

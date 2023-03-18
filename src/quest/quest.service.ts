@@ -6,8 +6,9 @@ import { geoPoint } from 'src/models/geoPoint.model';
 import { quest } from 'src/models/quest.model';
 import { quiz } from 'src/models/quiz.model';
 import { region } from 'src/models/region.model';
-import { QuizeService } from 'src/quize/quize.service';
+import { QuizeService } from 'src/quize/quiz.service';
 import { CreateQuestDto } from './dto/createQuest.dto';
+import { EditQuestDto } from './dto/editQuest.dto';
 
 @Injectable()
 export class QuestService {
@@ -91,6 +92,7 @@ export class QuestService {
       where: {
         currentKey: questId,
       },
+      include: { all: true },
     });
 
     if (!quest) {
@@ -98,5 +100,78 @@ export class QuestService {
     }
 
     return quest;
+  }
+
+  async editQuest(dto: EditQuestDto, file?: Express.Multer.File) {
+    const quiz = await this.quizService.getQuizByID(dto.quizId);
+
+    const result = await this.getCountOfQuests(dto.questId);
+
+    let positionInQuiz: number = 0;
+
+    if (result.count != 0) {
+      positionInQuiz = result.count + 1;
+    }
+
+    let geoPointArr: geoPoint[] = [];
+
+    const prevQuest = await this.questRepository.findByPk(dto.questId, {
+      include: { all: true },
+    });
+
+    Promise.all([
+      prevQuest.geoPoints.forEach(async (el) => {
+        await el.destroy();
+      }),
+      dto.geoPoints.forEach(async (element) => {
+        geoPointArr.push(await this.geoPointService.createGeoPoint(element));
+      }),
+    ]);
+
+    let photoPath;
+    if (file) {
+      photoPath = this.fileService.savePicture(file);
+    }
+
+    await this.questRepository.update(
+      {
+        description: dto.description,
+        correctAnswer: dto.correctAnswer,
+        ballPerQuest: dto.ballPerQuest,
+        type: dto.type,
+        photoPath,
+      },
+      {
+        where: {
+          id: prevQuest.id,
+        },
+      },
+    );
+
+    await prevQuest.$add('geoPoints', geoPointArr);
+
+    return this.questRepository.findByPk(prevQuest.id, {
+      include: { all: true },
+    });
+  }
+
+  async deleteQuest(id: number) {
+    const candidate = await this.questRepository.findByPk(id, {
+      include: { all: true },
+    });
+
+    if (!candidate) {
+      throw new HttpException('Quest not found', HttpStatus.BAD_REQUEST);
+    }
+
+    Promise.all([
+      candidate.geoPoints.forEach(async (el) => {
+        await el.destroy();
+      }),
+    ]);
+
+    await candidate.destroy();
+
+    return candidate;
   }
 }

@@ -6,6 +6,7 @@ import {
   UseInterceptors,
   Get,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { Param } from '@nestjs/common/decorators/http/route-params.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -47,7 +48,7 @@ export class GeoPointController {
     return this.gPService.findByTitle(title);
   }
 
-  @Post('/edit')
+  @Put('/edit')
   editPoint(@Body() dto: changeGeoPointDto) {
     return this.gPService.editPoint(dto);
   }
