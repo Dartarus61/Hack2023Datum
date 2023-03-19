@@ -10,6 +10,7 @@ import {
 } from 'sequelize-typescript';
 import { quest } from './quest.model';
 import { region } from './region.model';
+import { quizUserTable } from './userToQuiz.model';
 
 @Table({ tableName: 'Quiz', timestamps: false, freezeTableName: true })
 export class quiz extends Model<quiz> {
@@ -45,4 +46,7 @@ export class quiz extends Model<quiz> {
 
   @HasMany(() => quest)
   quests: quest[];
+
+  @HasMany(() => quizUserTable)
+  quizTables: quizUserTable[];
 }

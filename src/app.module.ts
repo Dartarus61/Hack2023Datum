@@ -9,6 +9,9 @@ import { regionToGeoPoint } from './models/regionToGeoPoint.model';
 import { quest } from './models/quest.model';
 import { QuestModule } from './quest/quest.module';
 import { RegionModule } from './region/region.module';
+import { VerifAlgorithmModule } from './verif-algorithm/verif-algorithm.module';
+import { quizUserTable } from './models/userToQuiz.model';
+import { answerInfo } from './models/answerInfo.model';
 
 @Module({
   imports: [
@@ -19,7 +22,15 @@ import { RegionModule } from './region/region.module';
       username: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_NAME || 'datum',
-      models: [geoPoint, region, quiz, regionToGeoPoint, quest],
+      models: [
+        geoPoint,
+        region,
+        quiz,
+        regionToGeoPoint,
+        quest,
+        quizUserTable,
+        answerInfo,
+      ],
       autoLoadModels: true,
       sync: { alter: true },
       /* dialectOptions:{
@@ -33,6 +44,7 @@ import { RegionModule } from './region/region.module';
     GeoPointModule,
     QuestModule,
     RegionModule,
+    VerifAlgorithmModule,
   ],
   controllers: [],
   providers: [],

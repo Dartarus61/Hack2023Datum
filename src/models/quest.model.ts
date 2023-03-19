@@ -8,6 +8,7 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
+import { answerInfo } from './answerInfo.model';
 import { geoPoint } from './geoPoint.model';
 import { quiz } from './quiz.model';
 
@@ -67,4 +68,7 @@ export class quest extends Model<quest> {
 
   @BelongsTo(() => quiz)
   quiz: quiz;
+
+  @HasMany(() => answerInfo)
+  answerInfo: answerInfo[];
 }
