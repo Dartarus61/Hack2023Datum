@@ -7,6 +7,7 @@ import { quiz } from 'src/models/quiz.model';
 import { quizUserTable } from 'src/models/userToQuiz.model';
 import { QuestService } from 'src/quest/quest.service';
 import { QuizeService } from 'src/quize/quiz.service';
+import { VerifyQuestionDto } from './dto/verifyQuest.dto';
 
 @Injectable()
 export class VerifAlgorithmService {
@@ -28,6 +29,7 @@ export class VerifAlgorithmService {
     }
 
     const firstQuestion = await this.questRepository.findOne({
+      attributes: { exclude: ['correctAnswer'] },
       where: {
         positionInQuiz: 0,
       },
@@ -45,5 +47,39 @@ export class VerifAlgorithmService {
     return { openQuiz, firstQuestion };
   }
 
-  async verifyQuest() {}
+  async verifyQuest(dto: VerifyQuestionDto) {
+    const question = await this.questRepository.findOne({
+      where: { currentKey: dto.currentKey },
+    });
+
+    if (!question) {
+      throw new HttpException('Question not found', HttpStatus.BAD_REQUEST);
+    }
+
+    if (JSON.stringify(question.correctAnswer) === JSON.stringify(dto.answer)) {
+      return { verdict: 'Вы ответили правильно', nextKey: question.nextKey };
+    } else {
+      return {
+        verdict: 'Вы ответили неверно',
+        correctAnswer: question.correctAnswer,
+        nextKey: question.nextKey,
+      };
+    }
+  }
+
+  async nextQuestion(currentKey: string) {
+    const question = await this.questRepository.findOne({
+      attributes: { exclude: ['correctAnswer'] },
+      where: {
+        currentKey,
+      },
+      include: [geoPoint],
+    });
+
+    if (!question) {
+      throw new HttpException('Question not found', HttpStatus.BAD_REQUEST);
+    }
+
+    return question;
+  }
 }
